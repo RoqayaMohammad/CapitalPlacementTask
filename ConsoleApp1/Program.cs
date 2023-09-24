@@ -2,9 +2,11 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetStringAsync("http://localhost:5000/api/values");
+            Console.WriteLine(response);
         }
     }
 }
