@@ -1,4 +1,11 @@
 
+using CapitalPlacementTask.Models;
+using DataAccessLayer.Interfaces;
+using DataAccessLayer.Repositories;
+using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+
 namespace CapitalPlacementTask
 {
     public class Program
@@ -14,6 +21,43 @@ namespace CapitalPlacementTask
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var configuration = new ConfigurationBuilder()
+   .SetBasePath(Directory.GetCurrentDirectory())
+   .AddJsonFile("appsettings.json")
+   .Build();
+
+            builder.Services.AddSingleton((provider) =>
+            {
+                var endpointUri = configuration["CosmosDbSettings:EndpointUri"];
+                var primaryKey = configuration["CosmosDbSettings:PrimaryKey"];
+                var databaseName = configuration["CosmosDbSettings:DatabaseName"];
+
+                var cosmosClientOptions = new CosmosClientOptions
+                {
+                    ApplicationName = databaseName,
+                    ConnectionMode = ConnectionMode.Gateway,
+
+                    //ServerCertificateCustomValidationCallback = (request, certificate, chain) =>
+                    //{
+                    //    // Always return true to ignore certificate validation errors
+                    //    return true; //not for production
+                    //}
+                };
+
+                var loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder.AddConsole();
+                });
+
+                var cosmosClient = new CosmosClient(endpointUri, primaryKey, cosmosClientOptions);
+
+
+                return cosmosClient;
+            });
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IGenericRepository<ProgramDetails>, GenericRepository<ProgramDetails>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -22,6 +66,7 @@ namespace CapitalPlacementTask
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+           
 
             app.UseHttpsRedirection();
 
