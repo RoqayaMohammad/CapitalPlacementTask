@@ -56,7 +56,7 @@ namespace CapitalPlacementTask
             });
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IGenericRepository<ProgramDetails>, GenericRepository<ProgramDetails>();
+            builder.Services.AddScoped<IGenericRepository<ProgramDetails>,GenericRepository<ProgramDetails>>();
 
             var app = builder.Build();
 
